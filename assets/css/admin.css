@@ -1,0 +1,10 @@
+.bundle-option {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.remove-bundle-option {
+    color: red;
+    cursor: pointer;
+}

@@ -1,0 +1,15 @@
+#bundle-quantity-options {
+    margin-bottom: 20px;
+}
+
+.bundle-option {
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+.bundle-option.selected {
+    border-color: #007cba;
+    background-color: #f1f1f1;
+}

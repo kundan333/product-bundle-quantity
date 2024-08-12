@@ -1,0 +1,18 @@
+.bundle-quantity-options {
+    margin-bottom: 20px;
+}
+
+.bundle-option {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.bundle-option.selected {
+    background-color: #f0f0f0;
+}
+
+.bundle-quantity, .bundle-price, .bundle-discount {
+    margin-right: 10px;
+}
