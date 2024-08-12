@@ -1,17 +1,64 @@
-
 jQuery(document).ready(function($) {
-    $('.bundle-option').on('click', function() {
-        $('.bundle-option').removeClass('selected');
+    const bundleOptions = $('.bundle-option');
+    const totalPriceElement = $('.total-price');
+    const addToCartButton = $('.add-to-cart-bundle');
+
+    bundleOptions.on('click', function() {
+        bundleOptions.removeClass('selected');
         $(this).addClass('selected');
 
-        let quantity = $(this).data('quantity');
-        let discount = $(this).data('discount');
+        const quantity = $(this).data('quantity');
+        const discount = $(this).data('discount');
+        const basePrice = parseFloat($('input[name="base_price"]').val());
 
-        // Update price display
-        // Add to cart functionality
+        const originalPrice = basePrice * quantity;
+        const discountedPrice = originalPrice * (1 - discount / 100);
+
+        totalPriceElement.html(`
+            <span class="original-price">${formatPrice(originalPrice)}</span>
+            <span class="discounted-price">${formatPrice(discountedPrice)}</span>
+            <span class="saving">Saving ${discount}%</span>
+        `);
     });
-});
 
+    addToCartButton.on('click', function(e) {
+        e.preventDefault();
+        const selectedBundle = $('.bundle-option.selected');
+        if (selectedBundle.length === 0) {
+            alert('Please select a package');
+            return;
+        }
+
+        const productId = $('input[name="product_id"]').val();
+        const quantity = selectedBundle.data('quantity');
+        const discount = selectedBundle.data('discount');
+
+        $.ajax({
+            url: wc_add_to_cart_params.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'add_bundle_to_cart',
+                product_id: productId,
+                quantity: quantity,
+                discount: discount
+            },
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = wc_add_to_cart_params.cart_url;
+                } else {
+                    alert('Error adding to cart. Please try again.');
+                }
+            }
+        });
+    });
+
+    function formatPrice(price) {
+        return '$' + price.toFixed(2);
+    }
+
+    // Select the first option by default
+    bundleOptions.first().click();
+});
 
 /*
 

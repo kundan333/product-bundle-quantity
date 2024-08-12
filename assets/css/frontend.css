@@ -1,18 +1,103 @@
-.bundle-quantity-options {
-    margin-bottom: 20px;
+.choose-your-package {
+    max-width: 400px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+}
+
+.high-demand {
+    background-color: #ffeeee;
+    color: #ff0000;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.flame-icon {
+    margin-right: 5px;
+}
+
+.bundle-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
 }
 
 .bundle-option {
     border: 1px solid #ddd;
     padding: 10px;
-    margin-bottom: 5px;
+    text-align: center;
     cursor: pointer;
+    flex: 1;
+    margin: 0 5px;
 }
 
 .bundle-option.selected {
-    background-color: #f0f0f0;
+    border-color: #4CAF50;
+    background-color: #e8f5e9;
 }
 
-.bundle-quantity, .bundle-price, .bundle-discount {
+.quantity {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.price {
+    display: block;
+    font-weight: bold;
+}
+
+.per-unit {
+    font-size: 12px;
+    color: #666;
+}
+
+.total-price {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #999;
     margin-right: 10px;
+}
+
+.discounted-price {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.saving {
+    background-color: #ff0000;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-left: 10px;
+}
+
+.additional-info {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.add-to-cart-bundle {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 18px;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.stock-info, .secure-transaction {
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+}
+
+.payment-methods {
+    text-align: center;
+    margin-top: 15px;
 }

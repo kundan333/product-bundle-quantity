@@ -40,6 +40,8 @@ class Yury_Bundle_Quantity {
         add_filter('woocommerce_cart_item_price', array($this, 'update_cart_item_price'), 10, 3);
 
 
+        add_action('wp_ajax_add_bundle_to_cart', array($this, 'add_bundle_to_cart'));
+        add_action('wp_ajax_nopriv_add_bundle_to_cart', array($this, 'add_bundle_to_cart'));
 
         add_action('admin_footer', array($this, 'add_bundle_option_template'));
 
@@ -125,18 +127,49 @@ class Yury_Bundle_Quantity {
         $bundle_options = get_post_meta($product->get_id(), '_bundle_options', true);
         if (!$bundle_options) return;
 
+        // Remove default add to cart button and quantity input
+        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+
         // Display bundle options
-        // This will be styled with CSS and enhanced with JavaScript
         ?>
-        <div class="bundle-quantity-options">
-            <h3><?php _e('Choose Your Package', 'yury-bundle-quantity'); ?></h3>
-            <?php foreach ($bundle_options as $index => $option) : ?>
-                <div class="bundle-option" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
-                    <span class="bundle-quantity"><?php echo esc_html($option['quantity']); ?></span>
-                    <span class="bundle-price"><?php echo wc_price($product->get_price() * $option['quantity'] * (1 - $option['discount'] / 100)); ?></span>
-                    <span class="bundle-discount"><?php echo esc_html($option['discount']); ?>% off</span>
-                </div>
-            <?php endforeach; ?>
+        <div class="choose-your-package">
+            <h2><?php _e('Choose Your Package', 'yury-bundle-quantity'); ?></h2>
+            <div class="high-demand">
+                <span class="flame-icon">🔥</span>
+                <?php _e('High Demand: 47 people are currently looking at this offer!', 'yury-bundle-quantity'); ?>
+            </div>
+            <div class="bundle-options">
+                <?php foreach ($bundle_options as $index => $option) :
+                    $discounted_price = $product->get_price() * (1 - $option['discount'] / 100);
+                    ?>
+                    <div class="bundle-option" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
+                        <span class="quantity"><?php echo esc_html($option['quantity']); ?></span>
+                        <span class="price"><?php echo wc_price($discounted_price); ?></span>
+                        <span class="per-unit"><?php _e('Per Unit', 'yury-bundle-quantity'); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="total-price">
+                <span class="original-price"><?php echo wc_price($product->get_price() * $bundle_options[0]['quantity']); ?></span>
+                <span class="discounted-price"><?php echo wc_price($product->get_price() * $bundle_options[0]['quantity'] * (1 - $bundle_options[0]['discount'] / 100)); ?></span>
+                <span class="saving">Saving <?php echo esc_html($bundle_options[0]['discount']); ?>%</span>
+            </div>
+            <div class="additional-info">
+                <span class="warranty">1-Year Extended Warranty</span>
+                <span class="free-shipping">Free Shipping Over $100</span>
+            </div>
+            <button class="add-to-cart-bundle"><?php _e('ADD TO CART', 'yury-bundle-quantity'); ?></button>
+            <div class="stock-info">
+                <?php if ($product->is_in_stock()) : ?>
+                    <span class="in-stock">✓ In Stock: Ships by Aug 10, 2024</span>
+                <?php endif; ?>
+            </div>
+            <div class="payment-methods">
+                <img src="<?php echo plugins_url('images/payment-methods.png', __FILE__); ?>" alt="Payment Methods">
+            </div>
+            <div class="secure-transaction">
+                <span>🔒 All transactions secured and encrypted</span>
+            </div>
         </div>
         <?php
     }
@@ -190,6 +223,30 @@ class Yury_Bundle_Quantity {
         </script>
         <?php
     }
+
+    public function add_bundle_to_cart() {
+        $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+        $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
+        $discount = isset($_POST['discount']) ? floatval($_POST['discount']) : 0;
+
+        $cart_item_data = array(
+            'bundle_option' => array(
+                'quantity' => $quantity,
+                'discount' => $discount
+            )
+        );
+
+        $added = WC()->cart->add_to_cart($product_id, 1, 0, array(), $cart_item_data);
+
+        if ($added) {
+            wp_send_json_success();
+        } else {
+            wp_send_json_error();
+        }
+
+        wp_die();
+    }
+
 
 }
 
