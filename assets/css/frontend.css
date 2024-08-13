@@ -1,7 +1,8 @@
 .choose-your-package {
-    max-width: 400px;
-    margin: 20px auto;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     font-family: Arial, sans-serif;
+    padding: 16px;
+    border-radius: 14px;
 }
 
 .high-demand {
@@ -29,11 +30,12 @@
     cursor: pointer;
     flex: 1;
     margin: 0 5px;
+    border-radius:14px;
 }
 
 .bundle-option.selected {
-    border-color: #4CAF50;
-    background-color: #e8f5e9;
+    border-color: #f7dc5a;
+    background-color: #fff1a4;
 }
 
 .quantity {
@@ -81,14 +83,14 @@
 }
 
 .add-to-cart-bundle {
-    background-color: #4CAF50;
+    background-color: #ffc00b;
     color: white;
     border: none;
     padding: 15px;
     font-size: 18px;
     width: 100%;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 14px;
 }
 
 .stock-info, .secure-transaction {

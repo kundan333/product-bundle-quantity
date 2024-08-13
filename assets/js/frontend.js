@@ -9,7 +9,11 @@ jQuery(document).ready(function($) {
 
         const quantity = $(this).data('quantity');
         const discount = $(this).data('discount');
-        const basePrice = parseFloat($('input[name="base_price"]').val());
+        const basePrice = $(this).data('price');
+
+        console.log("quantity : "+quantity);
+        console.log("discount : "+discount);
+        console.log("basePrice : "+basePrice);
 
         const originalPrice = basePrice * quantity;
         const discountedPrice = originalPrice * (1 - discount / 100);
@@ -29,9 +33,16 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        const productId = $('input[name="product_id"]').val();
-        const quantity = selectedBundle.data('quantity');
-        const discount = selectedBundle.data('discount');
+        // const productId = $('input[name="product_id"]').val();
+
+        const productId = $(this).data('productid');
+
+        console.log('productId '+productId);
+
+        const index = selectedBundle.data('index');
+        // const discount = selectedBundle.data('discount');
+
+
 
         $.ajax({
             url: wc_add_to_cart_params.ajax_url,
@@ -39,8 +50,7 @@ jQuery(document).ready(function($) {
             data: {
                 action: 'add_bundle_to_cart',
                 product_id: productId,
-                quantity: quantity,
-                discount: discount
+                bundle_index: index
             },
             success: function(response) {
                 if (response.success) {

@@ -8,6 +8,10 @@
  * Author URI: kundankb.com
 */
 
+const CSS_VER = '1.0.0';
+const JS_VER = '1.0.0';
+
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 class Yury_Bundle_Quantity {
@@ -45,18 +49,39 @@ class Yury_Bundle_Quantity {
 
         add_action('admin_footer', array($this, 'add_bundle_option_template'));
 
+        add_action('woocommerce_before_calculate_totals', array($this, 'calculate_cart_item_price'), 10, 1);
+
+        add_filter('woocommerce_cart_item_price', array($this, 'update_cart_item_price'), 10, 3);
+        add_filter('woocommerce_cart_item_quantity', array($this, 'update_cart_item_quantity'), 10, 3);
+
+        add_action('template_redirect', array($this, 'remove_default_woo_actions'),10);
+
+
+
     }
 
     public function enqueue_admin_assets($hook) {
         if ('post.php' != $hook || get_post_type() != 'product') return;
-        wp_enqueue_style('yury-bundle-quantity-admin', plugins_url('assets/js/admin.css', __FILE__));
-        wp_enqueue_script('yury-bundle-quantity-admin', plugins_url('assets/js/admin.js', __FILE__), array('jquery'), '1.0', true);
+        wp_enqueue_style('yury-bundle-quantity-admin', plugins_url('assets/js/admin.css', __FILE__),false,CSS_VER);
+        wp_enqueue_script('yury-bundle-quantity-admin', plugins_url('assets/js/admin.js', __FILE__), array('jquery'), JS_VER, true);
+
+
+
     }
 
     public function enqueue_frontend_assets() {
         if (!is_product()) return;
-        wp_enqueue_style('yury-bundle-quantity-frontend', plugins_url('assets/css/frontend.css', __FILE__));
-        wp_enqueue_script('yury-bundle-quantity-frontend', plugins_url('assets/js/frontend.js', __FILE__), array('jquery'), '1.0', true);
+        wp_enqueue_style('yury-bundle-quantity-frontend', plugins_url('assets/css/frontend.css', __FILE__),false,CSS_VER);
+        wp_enqueue_script('yury-bundle-quantity-frontend', plugins_url('assets/js/frontend.js', __FILE__), array('jquery'), JS_VER, true);
+
+        wp_localize_script('yury-bundle-quantity-frontend',
+            'wc_add_to_cart_params',
+            array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'cart_url' => wc_get_cart_url()
+            )
+        );
+
     }
 
     public function add_product_data_tab($tabs) {
@@ -119,6 +144,35 @@ class Yury_Bundle_Quantity {
         update_post_meta($post_id, '_bundle_options', $bundle_options);
     }
 
+
+
+
+    public function remove_default_woo_actions() {
+        if (!is_product()) {
+            return; // Only run on single product pages
+        }
+
+        $product = wc_get_product();
+
+        if (!$product) {
+            return; // Exit if no product is found
+        }
+
+        $enable_bundle_quantity = get_post_meta($product->get_id(), '_enable_bundle_quantity', true);
+        if ($enable_bundle_quantity !== 'yes') return;
+
+        // Remove the default Add to Cart button and quantity input
+        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+        remove_action('woocommerce_simple_add_to_cart', 'woocommerce_simple_add_to_cart', 30);
+        remove_action('woocommerce_grouped_add_to_cart', 'woocommerce_grouped_add_to_cart', 30);
+        remove_action('woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30);
+        remove_action('woocommerce_external_add_to_cart', 'woocommerce_external_add_to_cart', 30);
+
+        add_action('woocommerce_single_product_summary', array($this, 'display_bundle_options'), 35);
+    }
+
+
+
     public function display_bundle_options() {
         global $product;
         $enable_bundle_quantity = get_post_meta($product->get_id(), '_enable_bundle_quantity', true);
@@ -127,22 +181,22 @@ class Yury_Bundle_Quantity {
         $bundle_options = get_post_meta($product->get_id(), '_bundle_options', true);
         if (!$bundle_options) return;
 
+
         // Remove default add to cart button and quantity input
-        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+//        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+
+
 
         // Display bundle options
         ?>
         <div class="choose-your-package">
             <h2><?php _e('Choose Your Package', 'yury-bundle-quantity'); ?></h2>
-            <div class="high-demand">
-                <span class="flame-icon">🔥</span>
-                <?php _e('High Demand: 47 people are currently looking at this offer!', 'yury-bundle-quantity'); ?>
-            </div>
+
             <div class="bundle-options">
                 <?php foreach ($bundle_options as $index => $option) :
                     $discounted_price = $product->get_price() * (1 - $option['discount'] / 100);
                     ?>
-                    <div class="bundle-option" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
+                    <div class="bundle-option" data-index="<?php echo $index; ?>" data-price="<?php echo $product->get_price(); ?>" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
                         <span class="quantity"><?php echo esc_html($option['quantity']); ?></span>
                         <span class="price"><?php echo wc_price($discounted_price); ?></span>
                         <span class="per-unit"><?php _e('Per Unit', 'yury-bundle-quantity'); ?></span>
@@ -154,18 +208,11 @@ class Yury_Bundle_Quantity {
                 <span class="discounted-price"><?php echo wc_price($product->get_price() * $bundle_options[0]['quantity'] * (1 - $bundle_options[0]['discount'] / 100)); ?></span>
                 <span class="saving">Saving <?php echo esc_html($bundle_options[0]['discount']); ?>%</span>
             </div>
-            <div class="additional-info">
-                <span class="warranty">1-Year Extended Warranty</span>
-                <span class="free-shipping">Free Shipping Over $100</span>
-            </div>
-            <button class="add-to-cart-bundle"><?php _e('ADD TO CART', 'yury-bundle-quantity'); ?></button>
+            <button class="add-to-cart-bundle" data-productid="<?php echo $product->get_id(); ?>" ><?php _e('ADD TO CART', 'yury-bundle-quantity'); ?></button>
             <div class="stock-info">
                 <?php if ($product->is_in_stock()) : ?>
-                    <span class="in-stock">✓ In Stock: Ships by Aug 10, 2024</span>
+                    <span class="in-stock">✓ In Stock</span>
                 <?php endif; ?>
-            </div>
-            <div class="payment-methods">
-                <img src="<?php echo plugins_url('images/payment-methods.png', __FILE__); ?>" alt="Payment Methods">
             </div>
             <div class="secure-transaction">
                 <span>🔒 All transactions secured and encrypted</span>
@@ -199,7 +246,7 @@ class Yury_Bundle_Quantity {
             $base_price = $product->get_price();
             $quantity = $cart_item['bundle_option']['quantity'];
             $discount = $cart_item['bundle_option']['discount'];
-            $discounted_price = $base_price * $quantity * (1 - $discount / 100);
+            $discounted_price = $base_price * (1 - $discount / 100);
             return wc_price($discounted_price);
         }
         return $price;
@@ -226,25 +273,74 @@ class Yury_Bundle_Quantity {
 
     public function add_bundle_to_cart() {
         $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-        $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
-        $discount = isset($_POST['discount']) ? floatval($_POST['discount']) : 0;
+        $bundle_index = isset($_POST['bundle_index']) ? intval($_POST['bundle_index']) : -1;
+
+        if (!$product_id || $bundle_index < 0) {
+            wp_send_json_error('Invalid product or bundle selection.');
+            wp_die();
+        }
+
+        $bundle_options = get_post_meta($product_id, '_bundle_options', true);
+
+        if (!is_array($bundle_options) || !isset($bundle_options[$bundle_index])) {
+            wp_send_json_error('Bundle option not found.');
+            wp_die();
+        }
+
+        $selected_bundle = $bundle_options[$bundle_index];
+        $quantity = intval($selected_bundle['quantity']);
+        $discount = floatval($selected_bundle['discount']);
 
         $cart_item_data = array(
             'bundle_option' => array(
                 'quantity' => $quantity,
-                'discount' => $discount
+                'discount' => $discount,
+                'bundle_index' => $bundle_index
             )
         );
 
-        $added = WC()->cart->add_to_cart($product_id, 1, 0, array(), $cart_item_data);
+        // Add to cart with the bundle quantity
+        $added = WC()->cart->add_to_cart($product_id, $quantity, 0, array(), $cart_item_data);
 
         if ($added) {
-            wp_send_json_success();
+            wp_send_json_success(array(
+                'message' => sprintf(__('%d items added to cart with %s%% discount.', 'yury-bundle-quantity'), $quantity, $discount)
+            ));
         } else {
-            wp_send_json_error();
+            wp_send_json_error(__('Error adding to cart. Please try again.', 'yury-bundle-quantity'));
         }
 
         wp_die();
+    }
+
+
+    public function calculate_cart_item_price($cart_object) {
+        if (is_admin() && !defined('DOING_AJAX')) return;
+
+        foreach ($cart_object->get_cart() as $cart_item_key => $cart_item) {
+            if (isset($cart_item['bundle_option'])) {
+                $product = $cart_item['data'];
+                $base_price = $product->get_price();
+                $quantity = $cart_item['bundle_option']['quantity'];
+                $discount = $cart_item['bundle_option']['discount'];
+
+                // Calculate the discounted price
+                $discounted_price = $base_price * (1 - $discount / 100);
+
+                // Set the new price
+                $cart_item['data']->set_price($discounted_price);
+            }
+        }
+    }
+
+
+
+
+    public function update_cart_item_quantity($product_quantity, $cart_item_key, $cart_item) {
+        if (isset($cart_item['bundle_option'])) {
+            return $cart_item['bundle_option']['quantity'];
+        }
+        return $product_quantity;
     }
 
 
