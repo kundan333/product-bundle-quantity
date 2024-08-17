@@ -56,16 +56,21 @@ class Yury_Bundle_Quantity {
 
         add_action('template_redirect', array($this, 'remove_default_woo_actions'),10);
 
+        add_shortcode('yury_bundle_options', array($this, 'bundle_options_shortcode'));
+
+    }
 
 
+    public function bundle_options_shortcode() {
+        ob_start();
+        $this->display_bundle_options();
+        return ob_get_clean();
     }
 
     public function enqueue_admin_assets($hook) {
         if ('post.php' != $hook || get_post_type() != 'product') return;
         wp_enqueue_style('yury-bundle-quantity-admin', plugins_url('assets/js/admin.css', __FILE__),false,CSS_VER);
         wp_enqueue_script('yury-bundle-quantity-admin', plugins_url('assets/js/admin.js', __FILE__), array('jquery'), JS_VER, true);
-
-
 
     }
 
