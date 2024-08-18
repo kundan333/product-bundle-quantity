@@ -2,14 +2,14 @@
 /*
  * Plugin Name: WooCommerce Bundle Quantity Plugin
  * Description: Adds bundle quantity options with discounts to WooCommerce products.
- * Version: 2.2
+ * Version: 2.3
  * Author: Kundan Bora
  * Plugin URI: kundankb.com
  * Author URI: kundankb.com
 */
 
-const CSS_VER = '2.0.2';
-const JS_VER = '2.0.2';
+const CSS_VER = '2.0.3';
+const JS_VER = '2.0.3';
 
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
@@ -278,6 +278,15 @@ public function add_product_data_fields() {
                     <label><?php _e('Discount (%)', 'kund-bundle-quantity'); ?></label>
                     <input type="number" name="bundle_options[{{data.index}}][discount]" value="" min="0" max="100" step="0.01" />
                 </p>
+
+                <p class="form-field">
+                    <label><?php _e('Image', 'kund-bundle-quantity'); ?></label>
+                    <input type="hidden" class="bundle_image_id" name="bundle_options[{{data.index}}][image]" value="" />
+                    <img src="" alt="" class="bundle-image-preview" style="max-width: 100px; max-height: 100px;" />
+                    <button type="button" class="button upload_image_button" data-index="{{data.index}}"><?php _e('Upload/Add Image', 'kund-bundle-quantity'); ?></button>
+                    <button type="button" class="button remove_image_button" data-index="{{data.index}}" style="display: none;" ><?php _e('Remove Image', 'kund-bundle-quantity'); ?></button>
+                </p>
+
                 <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'kund-bundle-quantity'); ?></button>
             </div>
         </script>
