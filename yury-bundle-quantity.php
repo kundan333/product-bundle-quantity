@@ -2,14 +2,14 @@
 /*
  * Plugin Name: WooCommerce Bundle Quantity Plugin
  * Description: Adds bundle quantity options with discounts to WooCommerce products.
- * Version: 1.0
+ * Version: 2.0
  * Author: Kundan Bora
  * Plugin URI: kundankb.com
  * Author URI: kundankb.com
 */
 
-const CSS_VER = '1.0.0';
-const JS_VER = '1.0.0';
+const CSS_VER = '2.0.0';
+const JS_VER = '2.0.0';
 
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
@@ -100,45 +100,53 @@ class Yury_Bundle_Quantity {
 
 
 
-    public function add_product_data_fields() {
-        global $post;
-        ?>
-        <div id='bundle_quantity_options' class='panel woocommerce_options_panel'>
-            <div class='options_group'>
+public function add_product_data_fields() {
+    global $post;
+    ?>
+    <div id='bundle_quantity_options' class='panel woocommerce_options_panel'>
+        <div class='options_group'>
+            <?php
+            woocommerce_wp_checkbox(array(
+                'id' => '_enable_bundle_quantity',
+                'label' => __('Enable Bundle Quantity', 'yury-bundle-quantity'),
+                'description' => __('Enable bundle quantity options for this product', 'yury-bundle-quantity')
+            ));
+            ?>
+            <div id="bundle_quantity_options_container">
                 <?php
-                woocommerce_wp_checkbox(array(
-                    'id' => '_enable_bundle_quantity',
-                    'label' => __('Enable Bundle Quantity', 'yury-bundle-quantity'),
-                    'description' => __('Enable bundle quantity options for this product', 'yury-bundle-quantity')
-                ));
-                ?>
-                <div id="bundle_quantity_options_container">
-                    <?php
-                    $bundle_options = get_post_meta($post->ID, '_bundle_options', true);
-                    if ($bundle_options) {
-                        foreach ($bundle_options as $index => $option) {
-                            ?>
-                            <div class="bundle-option">
-                                <p class="form-field">
-                                    <label><?php _e('Quantity', 'yury-bundle-quantity'); ?></label>
-                                    <input type="number" name="bundle_options[<?php echo $index; ?>][quantity]" value="<?php echo esc_attr($option['quantity']); ?>" min="1" step="1" />
-                                </p>
-                                <p class="form-field">
-                                    <label><?php _e('Discount (%)', 'yury-bundle-quantity'); ?></label>
-                                    <input type="number" name="bundle_options[<?php echo $index; ?>][discount]" value="<?php echo esc_attr($option['discount']); ?>" min="0" max="100" step="0.01" />
-                                </p>
-                                <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'yury-bundle-quantity'); ?></button>
-                            </div>
-                            <?php
-                        }
+                $bundle_options = get_post_meta($post->ID, '_bundle_options', true);
+                if ($bundle_options) {
+                    foreach ($bundle_options as $index => $option) {
+                        ?>
+                        <div class="bundle-option" data-index="<?php echo $index; ?>">
+                            <p class="form-field">
+                                <label><?php _e('Quantity', 'yury-bundle-quantity'); ?></label>
+                                <input type="number" name="bundle_options[<?php echo $index; ?>][quantity]" value="<?php echo esc_attr($option['quantity']); ?>" min="1" step="1" />
+                            </p>
+                            <p class="form-field">
+                                <label><?php _e('Discount (%)', 'yury-bundle-quantity'); ?></label>
+                                <input type="number" name="bundle_options[<?php echo $index; ?>][discount]" value="<?php echo esc_attr($option['discount']); ?>" min="0" max="100" step="0.01" />
+                            </p>
+                            <p class="form-field">
+                                <label><?php _e('Image', 'yury-bundle-quantity'); ?></label>
+                                <input type="hidden" class="bundle_image_id" name="bundle_options[<?php echo $index; ?>][image]" value="<?php echo esc_attr($option['image']); ?>" />
+                                <img src="<?php echo wp_get_attachment_url($option['image']); ?>" alt="" class="bundle-image-preview" style="max-width: 100px; max-height: 100px; <?php echo $option['image'] ? '' : 'display: none;'; ?>" />
+                                <button type="button" class="button upload_image_button" data-index="<?php echo $index; ?>"><?php _e('Upload/Add Image', 'yury-bundle-quantity'); ?></button>
+                                <button type="button" class="button remove_image_button" data-index="<?php echo $index; ?>" <?php echo $option['image'] ? '' : 'style="display:none;"'; ?>><?php _e('Remove Image', 'yury-bundle-quantity'); ?></button>
+                            </p>
+                            <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'yury-bundle-quantity'); ?></button>
+                        </div>
+                        <?php
                     }
-                    ?>
-                </div>
-                <button type="button" id="add_bundle_option" class="button"><?php _e('Add Bundle Option', 'yury-bundle-quantity'); ?></button>
+                }
+                ?>
             </div>
+            <button type="button" id="add_bundle_option" class="button"><?php _e('Add Bundle Option', 'yury-bundle-quantity'); ?></button>
         </div>
-        <?php
-    }
+    </div>
+    <?php
+}
+
 
     public function save_bundle_quantity_fields($post_id) {
         $enable_bundle_quantity = isset($_POST['_enable_bundle_quantity']) ? 'yes' : 'no';
@@ -187,23 +195,15 @@ class Yury_Bundle_Quantity {
         if (!$bundle_options) return;
 
 
-        // Remove default add to cart button and quantity input
-//        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
 
-
-
-        // Display bundle options
         ?>
         <div class="choose-your-package">
             <h2><?php _e('Choose Your Package', 'yury-bundle-quantity'); ?></h2>
-
             <div class="bundle-options">
-                <?php foreach ($bundle_options as $index => $option) :
-                    $discounted_price = $product->get_price() * (1 - $option['discount'] / 100);
-                    ?>
-                    <div class="bundle-option" data-index="<?php echo $index; ?>" data-price="<?php echo $product->get_price(); ?>" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
+                <?php foreach ($bundle_options as $index => $option) : ?>
+                    <div class="bundle-option" style="background-image: url('<?php echo $option['image']?wp_get_attachment_url($option['image']):'' ?>');"  data-image="<?php echo $option['image']?wp_get_attachment_url($option['image']):''; ?>" data-index="<?php echo $index; ?>" data-price="<?php echo $product->get_price(); ?>" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
                         <span class="quantity"><?php echo esc_html($option['quantity']); ?></span>
-                        <span class="price"><?php echo wc_price($discounted_price); ?></span>
+                        <span class="price"><?php echo wc_price($product->get_price() * (1 - $option['discount'] / 100)); ?></span>
                         <span class="per-unit"><?php _e('Per Unit', 'yury-bundle-quantity'); ?></span>
                     </div>
                 <?php endforeach; ?>
@@ -225,6 +225,7 @@ class Yury_Bundle_Quantity {
         </div>
         <?php
     }
+
 
     public function add_cart_item_data($cart_item_data, $product_id, $variation_id) {
         if (isset($_POST['bundle_option'])) {

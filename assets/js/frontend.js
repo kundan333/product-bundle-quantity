@@ -7,13 +7,30 @@ jQuery(document).ready(function($) {
         bundleOptions.removeClass('selected');
         $(this).addClass('selected');
 
+        // var imageUrl = $(this).data('image');
+        // $('.woocommerce-product-gallery__image img').attr('src', imageUrl);
+
+        var imageUrl = $(this).data('image');
+
+        selectProductImage(imageUrl);
+
+        // Find the image in the WooCommerce product gallery
+        var galleryImage = $('.woocommerce-product-gallery__image img[src="' + imageUrl + '"]');
+
+        // Check if the image exists in the gallery
+        if (galleryImage.length) {
+            // Simulate a click on the gallery image to update the main product image
+            galleryImage.closest('a').trigger('click');
+        }
+
+
         const quantity = $(this).data('quantity');
         const discount = $(this).data('discount');
         const basePrice = $(this).data('price');
 
-        console.log("quantity : "+quantity);
-        console.log("discount : "+discount);
-        console.log("basePrice : "+basePrice);
+        // console.log("quantity : "+quantity);
+        // console.log("discount : "+discount);
+        // console.log("basePrice : "+basePrice);
 
         const originalPrice = basePrice * quantity;
         const discountedPrice = originalPrice * (1 - discount / 100);
@@ -24,6 +41,35 @@ jQuery(document).ready(function($) {
             <span class="saving">Saving ${discount}%</span>
         `);
     });
+
+    function selectProductImage(identifier) {
+        var $gallery = $('.woocommerce-product-gallery');
+        var $thumbnails = $gallery.find('.flex-control-thumbs').children();
+
+        $thumbnails.each(function(index) {
+            var $thumb = $(this).find('img');
+            var thumbSrc = $thumb.attr('src');
+            var fullSrc = thumbSrc.replace(/-\d+x\d+(?=\.[a-z]{3,4}$)/i, '');
+
+            console.log('thumb url '+fullSrc);
+            console.log('url '+identifier);
+
+            if (identifier.startsWith('http')) {
+                // If identifier is a URL
+                if (fullSrc === identifier || thumbSrc === identifier) {
+                    $thumb.trigger('click');
+                    console.log("called thumb click");
+                    return false; // Break the loop
+                }
+            } else {
+                // If identifier is an attachment ID
+                if ($thumb.attr('data-thumb-id') === identifier) {
+                    $thumb.trigger('click');
+                    return false; // Break the loop
+                }
+            }
+        });
+    }
 
     addToCartButton.on('click', function(e) {
         e.preventDefault();
