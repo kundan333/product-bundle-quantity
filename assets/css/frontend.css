@@ -111,3 +111,12 @@
     text-align: center;
     margin-top: 15px;
 }
+
+.bundle-option-product-info{
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    background-color: white;
+    opacity: 0.7;
+    border-radius: 10px;
+    padding: 20px;
+    width: 50%;
+}

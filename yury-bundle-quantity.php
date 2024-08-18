@@ -2,14 +2,14 @@
 /*
  * Plugin Name: WooCommerce Bundle Quantity Plugin
  * Description: Adds bundle quantity options with discounts to WooCommerce products.
- * Version: 2.0
+ * Version: 2.1
  * Author: Kundan Bora
  * Plugin URI: kundankb.com
  * Author URI: kundankb.com
 */
 
-const CSS_VER = '2.0.0';
-const JS_VER = '2.0.0';
+const CSS_VER = '2.0.1';
+const JS_VER = '2.0.1';
 
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
@@ -202,9 +202,12 @@ public function add_product_data_fields() {
             <div class="bundle-options">
                 <?php foreach ($bundle_options as $index => $option) : ?>
                     <div class="bundle-option" style="background-image: url('<?php echo $option['image']?wp_get_attachment_url($option['image']):'' ?>');"  data-image="<?php echo $option['image']?wp_get_attachment_url($option['image']):''; ?>" data-index="<?php echo $index; ?>" data-price="<?php echo $product->get_price(); ?>" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
+<!--                       make these 3 under transparent box-->
+                        <div  class="bundle-option-product-info" >
                         <span class="quantity"><?php echo esc_html($option['quantity']); ?></span>
                         <span class="price"><?php echo wc_price($product->get_price() * (1 - $option['discount'] / 100)); ?></span>
                         <span class="per-unit"><?php _e('Per Unit', 'yury-bundle-quantity'); ?></span>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
