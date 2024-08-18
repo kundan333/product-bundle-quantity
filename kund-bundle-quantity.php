@@ -14,7 +14,7 @@ const JS_VER = '2.0.2';
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-class Yury_Bundle_Quantity {
+class Kund_Bundle_Quantity {
     public function __construct() {
         add_action('plugins_loaded', array($this, 'init'));
     }
@@ -56,7 +56,7 @@ class Yury_Bundle_Quantity {
 
         add_action('template_redirect', array($this, 'remove_default_woo_actions'),10);
 
-        add_shortcode('yury_bundle_options', array($this, 'bundle_options_shortcode'));
+        add_shortcode('kund_bundle_options', array($this, 'bundle_options_shortcode'));
 
     }
 
@@ -69,17 +69,17 @@ class Yury_Bundle_Quantity {
 
     public function enqueue_admin_assets($hook) {
         if ('post.php' != $hook || get_post_type() != 'product') return;
-        wp_enqueue_style('yury-bundle-quantity-admin', plugins_url('assets/js/admin.css', __FILE__),false,CSS_VER);
-        wp_enqueue_script('yury-bundle-quantity-admin', plugins_url('assets/js/admin.js', __FILE__), array('jquery'), JS_VER, true);
+        wp_enqueue_style('kund-bundle-quantity-admin', plugins_url('assets/js/admin.css', __FILE__),false,CSS_VER);
+        wp_enqueue_script('kund-bundle-quantity-admin', plugins_url('assets/js/admin.js', __FILE__), array('jquery'), JS_VER, true);
 
     }
 
     public function enqueue_frontend_assets() {
         if (!is_product()) return;
-        wp_enqueue_style('yury-bundle-quantity-frontend', plugins_url('assets/css/frontend.css', __FILE__),false,CSS_VER);
-        wp_enqueue_script('yury-bundle-quantity-frontend', plugins_url('assets/js/frontend.js', __FILE__), array('jquery'), JS_VER, true);
+        wp_enqueue_style('kund-bundle-quantity-frontend', plugins_url('assets/css/frontend.css', __FILE__),false,CSS_VER);
+        wp_enqueue_script('kund-bundle-quantity-frontend', plugins_url('assets/js/frontend.js', __FILE__), array('jquery'), JS_VER, true);
 
-        wp_localize_script('yury-bundle-quantity-frontend',
+        wp_localize_script('kund-bundle-quantity-frontend',
             'wc_add_to_cart_params',
             array(
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -91,7 +91,7 @@ class Yury_Bundle_Quantity {
 
     public function add_product_data_tab($tabs) {
         $tabs['bundle_quantity'] = array(
-            'label' => __('Bundle Quantities', 'yury-bundle-quantity'),
+            'label' => __('Bundle Quantities', 'kund-bundle-quantity'),
             'target' => 'bundle_quantity_options',
             'class' => array('show_if_simple', 'show_if_variable'),
         );
@@ -108,8 +108,8 @@ public function add_product_data_fields() {
             <?php
             woocommerce_wp_checkbox(array(
                 'id' => '_enable_bundle_quantity',
-                'label' => __('Enable Bundle Quantity', 'yury-bundle-quantity'),
-                'description' => __('Enable bundle quantity options for this product', 'yury-bundle-quantity')
+                'label' => __('Enable Bundle Quantity', 'kund-bundle-quantity'),
+                'description' => __('Enable bundle quantity options for this product', 'kund-bundle-quantity')
             ));
             ?>
             <div id="bundle_quantity_options_container">
@@ -120,28 +120,28 @@ public function add_product_data_fields() {
                         ?>
                         <div class="bundle-option" data-index="<?php echo $index; ?>">
                             <p class="form-field">
-                                <label><?php _e('Quantity', 'yury-bundle-quantity'); ?></label>
+                                <label><?php _e('Quantity', 'kund-bundle-quantity'); ?></label>
                                 <input type="number" name="bundle_options[<?php echo $index; ?>][quantity]" value="<?php echo esc_attr($option['quantity']); ?>" min="1" step="1" />
                             </p>
                             <p class="form-field">
-                                <label><?php _e('Discount (%)', 'yury-bundle-quantity'); ?></label>
+                                <label><?php _e('Discount (%)', 'kund-bundle-quantity'); ?></label>
                                 <input type="number" name="bundle_options[<?php echo $index; ?>][discount]" value="<?php echo esc_attr($option['discount']); ?>" min="0" max="100" step="0.01" />
                             </p>
                             <p class="form-field">
-                                <label><?php _e('Image', 'yury-bundle-quantity'); ?></label>
+                                <label><?php _e('Image', 'kund-bundle-quantity'); ?></label>
                                 <input type="hidden" class="bundle_image_id" name="bundle_options[<?php echo $index; ?>][image]" value="<?php echo esc_attr($option['image']); ?>" />
                                 <img src="<?php echo wp_get_attachment_url($option['image']); ?>" alt="" class="bundle-image-preview" style="max-width: 100px; max-height: 100px; <?php echo $option['image'] ? '' : 'display: none;'; ?>" />
-                                <button type="button" class="button upload_image_button" data-index="<?php echo $index; ?>"><?php _e('Upload/Add Image', 'yury-bundle-quantity'); ?></button>
-                                <button type="button" class="button remove_image_button" data-index="<?php echo $index; ?>" <?php echo $option['image'] ? '' : 'style="display:none;"'; ?>><?php _e('Remove Image', 'yury-bundle-quantity'); ?></button>
+                                <button type="button" class="button upload_image_button" data-index="<?php echo $index; ?>"><?php _e('Upload/Add Image', 'kund-bundle-quantity'); ?></button>
+                                <button type="button" class="button remove_image_button" data-index="<?php echo $index; ?>" <?php echo $option['image'] ? '' : 'style="display:none;"'; ?>><?php _e('Remove Image', 'kund-bundle-quantity'); ?></button>
                             </p>
-                            <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'yury-bundle-quantity'); ?></button>
+                            <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'kund-bundle-quantity'); ?></button>
                         </div>
                         <?php
                     }
                 }
                 ?>
             </div>
-            <button type="button" id="add_bundle_option" class="button"><?php _e('Add Bundle Option', 'yury-bundle-quantity'); ?></button>
+            <button type="button" id="add_bundle_option" class="button"><?php _e('Add Bundle Option', 'kund-bundle-quantity'); ?></button>
         </div>
     </div>
     <?php
@@ -198,7 +198,7 @@ public function add_product_data_fields() {
 
         ?>
         <div class="choose-your-package">
-            <h2><?php _e('Choose Your Package', 'yury-bundle-quantity'); ?></h2>
+            <h2><?php _e('Choose Your Package', 'kund-bundle-quantity'); ?></h2>
             <div class="bundle-options">
                 <?php foreach ($bundle_options as $index => $option) : ?>
                     <div class="bundle-option" data-image="<?php echo $option['image']?wp_get_attachment_url($option['image']):''; ?>" data-index="<?php echo $index; ?>" data-price="<?php echo $product->get_price(); ?>" data-quantity="<?php echo esc_attr($option['quantity']); ?>" data-discount="<?php echo esc_attr($option['discount']); ?>">
@@ -210,7 +210,7 @@ public function add_product_data_fields() {
                         <div  class="bundle-option-product-info" >
                         <div class="quantity"><?php echo esc_html($option['quantity']); ?></div>
                         <div class="price"><?php echo wc_price($product->get_price() * (1 - $option['discount'] / 100)); ?></div>
-                        <div class="per-unit"><?php _e('Per Unit', 'yury-bundle-quantity'); ?></div>
+                        <div class="per-unit"><?php _e('Per Unit', 'kund-bundle-quantity'); ?></div>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -220,7 +220,7 @@ public function add_product_data_fields() {
                 <span class="discounted-price"><?php echo wc_price($product->get_price() * $bundle_options[0]['quantity'] * (1 - $bundle_options[0]['discount'] / 100)); ?></span>
                 <span class="saving">Saving <?php echo esc_html($bundle_options[0]['discount']); ?>%</span>
             </div>
-            <button class="add-to-cart-bundle" data-productid="<?php echo $product->get_id(); ?>" ><?php _e('ADD TO CART', 'yury-bundle-quantity'); ?></button>
+            <button class="add-to-cart-bundle" data-productid="<?php echo $product->get_id(); ?>" ><?php _e('ADD TO CART', 'kund-bundle-quantity'); ?></button>
             <div class="stock-info">
                 <?php if ($product->is_in_stock()) : ?>
                     <span class="in-stock">✓ In Stock</span>
@@ -271,14 +271,14 @@ public function add_product_data_fields() {
         <script type="text/template" id="tmpl-bundle-option-template">
             <div class="bundle-option">
                 <p class="form-field">
-                    <label><?php _e('Quantity', 'yury-bundle-quantity'); ?></label>
+                    <label><?php _e('Quantity', 'kund-bundle-quantity'); ?></label>
                     <input type="number" name="bundle_options[{{data.index}}][quantity]" value="" min="1" step="1" />
                 </p>
                 <p class="form-field">
-                    <label><?php _e('Discount (%)', 'yury-bundle-quantity'); ?></label>
+                    <label><?php _e('Discount (%)', 'kund-bundle-quantity'); ?></label>
                     <input type="number" name="bundle_options[{{data.index}}][discount]" value="" min="0" max="100" step="0.01" />
                 </p>
-                <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'yury-bundle-quantity'); ?></button>
+                <button type="button" class="button remove-bundle-option"><?php _e('Remove', 'kund-bundle-quantity'); ?></button>
             </div>
         </script>
         <?php
@@ -317,10 +317,10 @@ public function add_product_data_fields() {
 
         if ($added) {
             wp_send_json_success(array(
-                'message' => sprintf(__('%d items added to cart with %s%% discount.', 'yury-bundle-quantity'), $quantity, $discount)
+                'message' => sprintf(__('%d items added to cart with %s%% discount.', 'kund-bundle-quantity'), $quantity, $discount)
             ));
         } else {
-            wp_send_json_error(__('Error adding to cart. Please try again.', 'yury-bundle-quantity'));
+            wp_send_json_error(__('Error adding to cart. Please try again.', 'kund-bundle-quantity'));
         }
 
         wp_die();
@@ -359,4 +359,4 @@ public function add_product_data_fields() {
 
 }
 
-new Yury_Bundle_Quantity();
+new Kund_Bundle_Quantity();
