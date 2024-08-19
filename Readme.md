@@ -23,7 +23,7 @@ The WooCommerce Bundle Quantity Plugin enhances your product pages by offering c
 - Easy-to-use admin interface for creating and managing product bundles.
 - Supports multiple bundles per product, each with unique images and discounts.
 - Seamless integration with WooCommerce’s product gallery and cart system.
-- You can also use shortcode **[kund_bundle_options]**
+- You can also use shortcode **[kund_bundle_options]** in the product page.
 
 ## Installation
 
@@ -69,7 +69,7 @@ A: In the product edit screen, simply delete or modify the bundle in the **Bundl
 
 ## Support
 
-For support, please visit  [kundankb.com](www.kundankb.com]).
+For support, please visit  [kundankb.com](https://kundankb.com/).
 
 ## License
 
