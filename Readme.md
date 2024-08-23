@@ -59,8 +59,14 @@ A: In the product edit screen, simply delete or modify the bundle in the **Bundl
 
 1. **Admin Interface** - Easily create and manage product bundles.
 
+![Product quantity bundle backend](assets/images/backend.png?raw=true "Product quantity bundle backend")
 
 2. **Frontend Display** - Customers can choose from multiple bundles on the product page.
+
+
+![Product quantity bundle frontend](assets/images/frontend1.png?raw=true "Product quantity bundle frontend 1")
+![Product quantity bundle frontend](assets/images/frontend2.png?raw=true "Product quantity bundle frontend 2")
+
 
 ## Changelog
 
